@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- What this page may run, load and talk to. Scripts: only the site's own files, and the two theme lines below by their
+     fingerprint (change them and tests/test_scripts.py prints the new one). Pictures: the site and Scryfall's image
+     servers. Requests: the site, Scryfall and Dropbox. GitHub Pages sends no headers, so the policy is set here. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cUMJhotOryoeDeaUCN0sjPrAx43ytMn1qARto2VRAyg='; style-src 'self' 'unsafe-inline'; img-src 'self' https://cards.scryfall.io https://svgs.scryfall.io; connect-src 'self' https://api.scryfall.com https://cards.scryfall.io https://svgs.scryfall.io https://api.dropboxapi.com https://content.dropboxapi.com; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#1A0B3B">
+<script>/* Theme chosen in About (System when unset), applied before the page paints so it never flashes. */
+try { const t = localStorage.getItem("bt.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Bulk Tutor</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-title" content="Bulk Tutor">
+<meta name="description" content="Build Commander decks from the cards you already own, and find them in your binders and boxes.">
+<!-- Beta: keep it out of search results. Remove when Bulk Tutor goes public (see README, Private mode). -->
+<meta name="robots" content="noindex">
+<!-- Link previews (Discord, iMessage, Slack...). The image comes from design/social-image.html. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bulk Tutor">
+<meta property="og:title" content="Bulk Tutor">
+<meta property="og:description" content="Build Commander decks from the cards you already own, and find them in your binders and boxes.">
+<meta property="og:url" content="https://bulktutor.com/">
+<meta property="og:image" content="https://bulktutor.com/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bulk Tutor: an open book with bubbles rising from it, beside the words Build Commander decks from the cards you already own">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand"><h1>Bulk Tutor</h1><button class="beta" data-about aria-label="Beta: about this version">Beta</button></div>
+      <span class="top-right"><span class="status" id="status"><span class="dot"></span><span id="status-text">Loading deck data</span></span><button class="gear" id="gear" data-settings aria-label="Settings"><span class="gear-dot"></span><svg aria-hidden="true"><use href="icons.svg#i-settings"/></svg></button></span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-build" aria-selected="true" data-view="build"><svg class="tab-ico" aria-hidden="true"><use href="icons.svg#i-workbench"/></svg>Workbench</button>
+      <button role="tab" id="tab-collection" aria-selected="false" data-view="collection"><svg class="tab-ico" aria-hidden="true"><use href="icons.svg#i-collection"/></svg>Collection</button>
+      <span class="tab-sep" aria-hidden="true"></span>
+      <button role="tab" id="tab-decks" aria-selected="false" data-view="decks"><svg class="tab-ico" aria-hidden="true"><use href="icons.svg#i-find"/></svg>Find decks</button>
+      <button role="tab" id="tab-combos" aria-selected="false" data-view="combos"><svg class="tab-ico" aria-hidden="true"><use href="icons.svg#i-combos"/></svg>Combos</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <div id="banners" class="filters"></div>
+  <!-- Shown only when the browser's storage takes more than a third of a second to hand over the collection (record.js openRecord) -->
+  <p id="coll-loading" class="muted" role="status" hidden>Loading your collection…</p>
+
+  <section id="lock" class="panel" hidden>
+    <h2>Bulk Tutor is in development</h2>
+    <p class="muted">Access to this version of Bulk Tutor is restricted while it remains under development. Enter your password to continue.</p>
+    <form id="lock-form" class="filters" autocomplete="on">
+      <input type="text" name="username" value="bulk-tutor" autocomplete="username" hidden>
+      <div class="field">
+        <label for="lock-pass">Password</label>
+        <input type="password" id="lock-pass" autocomplete="current-password">
+      </div>
+      <label class="check"><input type="checkbox" id="lock-remember" checked> Remember on this device</label>
+      <p id="lock-msg" class="small warn-text" hidden></p>
+      <div class="actions"><button class="btn primary" id="lock-go" type="submit">Unlock</button></div>
+      <p class="small muted">Don't have a password? Request one at <span data-contact></span></p>
+    </form>
+  </section>
+
+  <!-- WELCOME: a first open, before any cards are shown (import.js needsWelcome) -->
+  <section id="view-welcome" class="panel welcome" hidden aria-labelledby="welcome-title">
+    <h2 id="welcome-title">Welcome to Bulk Tutor</h2>
+    <p>Build Commander decks from the cards you already own, and see which box each one is in.</p>
+    <p class="muted">No account needed: your collection stays in this browser.</p>
+    <div class="actions"><button class="btn primary" data-go="import">Import your collection</button><button class="btn" id="welcome-example">Try it with an example</button></div>
+    <p class="small muted" id="welcome-sync" hidden>Already use Bulk Tutor on another device? <button class="btn link" data-settings>Connect Dropbox in Settings</button> to bring your collection over.</p>
+  </section>
+
+  <!-- DECKS -->
+  <section id="view-decks" class="filters" hidden aria-labelledby="tab-decks">
+    <p class="muted intro">Popular EDHREC decks, ranked by how much of each you already own.</p>
+    <label class="search-field"><svg class="search-ico" aria-hidden="true"><use href="icons.svg#i-search"/></svg><input type="search" id="q" aria-label="Search commanders" placeholder="Search commanders or themes" autocomplete="off" enterkeyhint="search"></label>
+    <div class="chip-row" id="deck-chips"></div>
+    <div id="deck-list"></div>
+  </section>
+
+  <!-- DECK DETAIL -->
+  <section id="view-deck" hidden></section>
+
+  <!-- BUILD (deck builder) -->
+  <section id="view-build" hidden aria-labelledby="tab-build"></section>
+
+  <!-- COMBOS -->
+  <section id="view-combos" hidden class="filters" aria-labelledby="tab-combos">
+    <p class="muted intro">Combos from Commander Spellbook that you can already assemble, or are one card away from.</p>
+    <label class="search-field"><svg class="search-ico" aria-hidden="true"><use href="icons.svg#i-search"/></svg><input type="search" id="xq" aria-label="Search combos by card or result" placeholder="Card or result, e.g. infinite mana" autocomplete="off" enterkeyhint="search"></label>
+    <div class="chip-row" id="combo-chips"></div>
+    <div class="count-row"><p class="muted small" id="combo-count"></p><div id="xview"></div></div>
+    <div id="combo-list"></div>
+  </section>
+
+  <!-- COLLECTION -->
+  <section id="view-collection" hidden class="filters" aria-labelledby="tab-collection"></section>
+  <section id="view-browse" hidden aria-labelledby="tab-collection"></section>
+  <section id="view-putaway" hidden class="filters" aria-labelledby="tab-collection"></section>
+  <section id="view-changes" hidden class="filters" aria-labelledby="tab-collection"></section>
+  <section id="view-settings" hidden class="filters" aria-labelledby="settings-title"></section>
+
+  <!-- IMPORT -->
+  <section id="view-import" hidden class="filters" aria-labelledby="import-title">
+    <div class="actions"><button class="btn" data-go="collection"><span data-mark="back">←</span> <span id="import-back">Collection</span></button></div>
+    <div>
+      <h2 id="import-title">Import or update your collection</h2>
+      <p class="muted" id="import-summary">Import a collection export or paste a card list. It stays in this browser unless you connect your own Dropbox.</p>
+    </div>
+    <div class="drop" id="drop">
+      <p><strong>Drop a CSV here</strong> or</p>
+      <label class="btn primary" for="file">Choose file</label>
+      <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain" hidden>
+      <p class="muted small">ManaBox, Moxfield, Archidekt, Dragon Shield, Deckbox and most other apps' exports work. <button class="btn link" data-which-apps>Which apps work?</button></p>
+    </div>
+    <div class="field">
+      <label for="paste">Or paste a list, one card per line (like “1 Sol Ring”)</label>
+      <textarea id="paste" placeholder="1 Sol Ring&#10;1 Swords to Plowshares&#10;2 Arcane Signet"></textarea>
+    </div>
+    <div class="actions"><button class="btn primary" id="paste-go">Import pasted list</button></div>
+    <div id="import-result"></div>
+
+    <details class="howto panel" id="which-apps">
+      <summary><h3>Which apps work?</h3><span class="muted small">ManaBox, Moxfield, more</span></summary>
+      <div class="fold-body">
+        <p class="muted small">Every app below brings your cards and how many you have. Only some bring where they're kept.</p>
+        <details class="app-how"><summary><strong>ManaBox</strong><span class="muted small">binders become locations</span></summary>
+          <p>In the Collection tab, tap the menu at the top right and export the collection as a CSV. To send one binder, open it and use its own menu.</p>
+          <p class="muted small">Binder names become locations, deck binders become decks, and your printing's picture comes along. With Dropbox connected, save the export into Dropbox › Apps › Bulk Tutor and it's picked up the next time Bulk Tutor syncs.</p></details>
+        <details class="app-how"><summary><strong>Dragon Shield</strong><span class="muted small">folders become locations</span></summary>
+          <p>In the Dragon Shield app, export your collection as a CSV.</p>
+          <p class="muted small">Folder names become locations. Folders whose names start with your deck prefix (see Settings below) count as decks.</p></details>
+        <details class="app-how"><summary><strong>Moxfield</strong><span class="muted small">one location</span></summary>
+          <p>On moxfield.com, open your collection and choose Export.</p>
+          <p class="muted small">Moxfield's export has no binders, so every card goes in one location called Collection.</p></details>
+        <details class="app-how"><summary><strong>Archidekt</strong><span class="muted small">one location</span></summary>
+          <p>On archidekt.com, open your collection, choose Export and download the CSV.</p>
+          <p class="muted small">All cards go in one location; your printing's picture comes along.</p></details>
+        <details class="app-how"><summary><strong>Deckbox</strong><span class="muted small">one location</span></summary>
+          <p>On deckbox.org, open your inventory and export it as a CSV.</p>
+          <p class="muted small">All cards go in one location.</p></details>
+        <details class="app-how"><summary><strong>Other apps</strong><span class="muted small">most CSV exports</span></summary>
+          <p>TCGplayer, MTGGoldfish, Cardsphere, Helvault, Deckstats and most other apps work too: any CSV with a card name column and a quantity column. A column called Location, Binder, Folder or List becomes locations.</p></details>
+        <details class="app-how"><summary><strong>Anything else</strong><span class="muted small">paste a list</span></summary>
+          <p>Copy a text list, one card per line (“1 Sol Ring”), and paste it in the box above.</p></details>
+      </div>
+    </details>
+
+    <div class="panel">
+      <h3>Settings</h3>
+      <div class="field">
+        <label for="prefix">Binders whose names start with this are treated as decks</label>
+        <input type="text" id="prefix" value="Deck">
+      </div>
+      <p class="muted small">ManaBox exports also mark deck binders on their own, so this is only a backup. For any other box or binder that holds a deck, use “Choose your decks” on the Collection page.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Collection link</h3>
+      <p class="muted small">A link with your collection packed into it. Bookmark it, add it to your home screen, or open it on another device. It's a snapshot, so copy a new one after you re-import.</p>
+      <div class="actions"><button class="btn" id="copy-link">Copy collection link</button></div>
+      <div id="link-out"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Remove collection</h3>
+      <div class="actions" id="clear-zone"><button class="btn danger" id="clear">Remove your collection from this browser</button></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="sheet" class="sheet" aria-label="Card details"><div id="sheet-body"></div></dialog>
+<dialog id="locstyle" class="sheet" aria-labelledby="locstyle-title"><div id="locstyle-body"></div></dialog>
+<dialog id="pickdecks" class="sheet msheet" aria-labelledby="pickdecks-title"><div id="pickdecks-body" class="msheet-body"></div></dialog>
+<dialog id="whichbox" class="sheet msheet" aria-labelledby="whichbox-title"><div id="whichbox-body" class="msheet-body"></div></dialog>
+<dialog id="tokask" class="sheet msheet" aria-labelledby="tokask-title"><div id="tokask-body" class="msheet-body"></div></dialog>
+<dialog id="putin" class="sheet msheet" aria-labelledby="putin-title"><div id="putin-body" class="msheet-body"></div></dialog>
+<dialog id="addcards" class="sheet msheet" aria-labelledby="addcards-title"><div id="addcards-body" class="msheet-body"></div></dialog>
+<dialog id="rule" class="sheet msheet" aria-labelledby="rule-title"><div id="rule-body" class="msheet-body"></div></dialog>
+<dialog id="update" class="sheet usheet" aria-labelledby="update-title"><div id="update-body"></div></dialog>
+<dialog id="filters" class="sheet fsheet" aria-label="Filters"><div id="filters-body"></div></dialog>
+<dialog id="sortsheet" class="sheet msheet" aria-labelledby="sortsheet-title"><div id="sortsheet-body" class="msheet-body"></div></dialog>
+<dialog id="dfilters" class="sheet fsheet" aria-labelledby="dfilters-title"><div class="fsheet-body">
+  <h2 id="dfilters-title" tabindex="-1" autofocus>Filters and sort</h2>
+  <div class="fgroup"><label class="flabel" for="sort">Sort by</label>
+    <select id="sort" class="fselect"><option value="pct">Most owned</option><option value="missing">Fewest missing</option><option value="cost">Cheapest to finish</option><option value="pop">Most popular</option></select></div>
+  <div class="fgroup"><p class="flabel">Within colors</p><div class="opt-grid five" id="colorfilter" role="group" aria-label="Within colors"></div></div>
+  <div class="fgroup fpair">
+    <div class="fgroup"><label class="flabel" for="maxcost">Most to finish ($)</label><input type="number" id="maxcost" class="fselect" min="0" step="5" placeholder="Any" inputmode="decimal"></div>
+    <div class="fgroup"><label class="flabel" for="mindecks">Built from at least</label>
+      <select id="mindecks" class="fselect"><option value="">Any</option><option value="3">3 decks</option><option value="10">10 decks</option><option value="50">50 decks</option><option value="250">250 decks</option></select></div>
+  </div>
+  <div class="fgroup"><p class="flabel">Show</p>
+    <label class="check"><input type="checkbox" id="owncmd"> Only commanders you own</label>
+    <label class="check"><input type="checkbox" id="themes" checked> Theme decks too</label>
+    <label class="check"><input type="checkbox" id="countdecks" checked> Count cards already in your decks as owned</label></div>
+  <div class="fsheet-foot sheet-pair"><button class="btn" data-dclear="all">Clear filters</button><button class="btn primary" id="dfilters-show" data-fsheet-close>Show decks</button></div>
+</div></dialog>
+<dialog id="xfilters" class="sheet fsheet" aria-labelledby="xfilters-title"><div class="fsheet-body">
+  <h2 id="xfilters-title" tabindex="-1" autofocus>Filters and sort</h2>
+  <div class="fgroup"><label class="flabel" for="xsort">Sort one card away by</label>
+    <select id="xsort" class="fselect"><option value="pop">Most popular</option><option value="cheap">Cheapest missing card</option></select></div>
+  <div class="fgroup"><p class="flabel">Within colors</p><div class="opt-grid five" id="xcolors" role="group" aria-label="Within colors"></div></div>
+  <div class="fgroup"><label class="flabel" for="xsalt">Most salt</label>
+    <select id="xsalt" class="fselect"><option value="">Any</option><option value="3">3 or less</option><option value="2">2 or less</option><option value="1">1 or less</option></select></div>
+  <div class="fgroup"><p class="flabel">Combo tags <span class="muted">(tap to hide one)</span></p><div class="opt-grid" id="xtags" role="group" aria-label="Combo tags"></div></div>
+  <div class="fgroup"><p class="flabel">Show</p>
+    <label class="check"><input type="checkbox" id="xfree"> Skip cards already in your decks</label>
+    <label class="check"><input type="checkbox" id="xplain"> Hide combos that need other cards</label></div>
+  <div class="fsheet-foot sheet-pair"><button class="btn" data-xclear="all">Clear filters</button><button class="btn primary" id="xfilters-show" data-fsheet-close>Show combos</button></div>
+</div></dialog>
+<dialog id="hand" class="sheet" aria-label="Sample hand"><div id="hand-body"></div></dialog>
+<dialog id="builds" class="sheet msheet" aria-labelledby="builds-title"><div id="builds-body" class="msheet-body"></div></dialog>
+<dialog id="buildmenu" class="sheet msheet" aria-labelledby="buildmenu-title"><div id="buildmenu-body" class="msheet-body"></div></dialog>
+<dialog id="selmenu" class="sheet msheet" aria-labelledby="selmenu-title"><div id="selmenu-body" class="msheet-body"></div></dialog>
+<dialog id="overhaul" class="sheet msheet" aria-labelledby="overhaul-title"><div id="overhaul-body" class="msheet-body"></div></dialog>
+<dialog id="deckmenu" class="sheet msheet" aria-labelledby="deckmenu-title"><div id="deckmenu-body" class="msheet-body"></div></dialog>
+<dialog id="viewsheet" class="sheet msheet" aria-labelledby="viewsheet-title"><div id="viewsheet-body" class="msheet-body"></div></dialog>
+<dialog id="viewer" class="viewer" aria-label="Card picture"><div id="viewer-body"></div></dialog>
+<dialog id="about" class="sheet about" aria-label="About Bulk Tutor"><div id="about-body"></div></dialog>
+
+<footer class="wrap" id="footer"><p id="footer-ver"></p><p data-credits></p>
+<p data-legal></p>
+<p data-own></p></footer>
+
+<script src="engine.js"></script>
+<script src="app/core.js"></script>
+<script src="app/example.js"></script>
+<script src="app/record.js"></script>
+<script src="app/import.js"></script>
+<script src="app/find.js"></script>
+<script src="app/collection.js"></script>
+<script src="app/builds.js"></script>
+<script src="app/generator.js"></script>
+<script src="app/workbench.js"></script>
+<script src="app/overhaul.js"></script>
+<script src="app/buildsheets.js"></script>
+<script src="app/tune.js"></script>
+<script src="app/cards.js"></script>
+<script src="app/pictures.js"></script>
+<script src="app/cardviews.js"></script>
+<script src="app/tokens.js"></script>
+<script src="app/browse.js"></script>
+<script src="app/sorting.js"></script>
+<script src="app/views.js"></script>
+<script src="app/putaway.js"></script>
+<script src="app/addcards.js"></script>
+<script src="app/changes.js"></script>
+<script src="app/filing.js"></script>
+<script src="app/about.js"></script>
+<script src="app/sync.js"></script>
+<script src="app/main.js"></script>
+
+</body>
+</html>

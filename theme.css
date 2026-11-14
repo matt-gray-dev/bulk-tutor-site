@@ -1,0 +1,113 @@
+/* Bulk Tutor's look: every colour, font, corner, border, shadow and motion setting in one place.
+   styles.css draws the screens using only these names, so changing a value here changes it everywhere.
+   Layout (spacing, sizes, what sits where) stays in styles.css: Matt treats layout as function first.
+   The font files are in site/fonts/ and declared just below: a new font needs its files there, a rule here and its
+   Latin files in sw.js's FONTS list (kept for offline use).
+   index.html's <meta name="theme-color"> (the phone's status bar) is the one colour that can't live here. */
+
+/* ---- Font files, served from this site (nothing is asked of Google). Two files per weight, as Google Fonts splits
+   them: Latin, and Latin Extended, which a browser fetches only when a page shows one of its letters (an artist's
+   "ł" or "č"). Other scripts fall back to the device's fonts. Licences: fonts/LICENSE.txt (SIL Open Font License). ---- */
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/spectral-latin-500-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/spectral-latin-ext-500-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 600; font-display: swap; src: url(fonts/spectral-latin-600-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 600; font-display: swap; src: url(fonts/spectral-latin-ext-600-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/spectral-latin-700-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Spectral"; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/spectral-latin-ext-700-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-sans-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-sans-latin-ext-500-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url(fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url(fonts/ibm-plex-sans-latin-ext-600-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-mono-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-mono-latin-ext-500-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 600; font-display: swap; src: url(fonts/ibm-plex-mono-latin-600-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 600; font-display: swap; src: url(fonts/ibm-plex-mono-latin-ext-600-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+
+:root {
+  /* ---- Colours, light theme. Purples from the logo (design/logo.jpg); neutrals lean slightly violet. ---- */
+  --paper: #F4F2F7;          /* page background */
+  --surface: #FFFFFF;        /* panels, sheets, buttons */
+  --sunk: #EAE6F0;           /* wells, empty bars, placeholders */
+  --ink: #1C1724;            /* text */
+  --muted: #5F5870;          /* secondary text, icons */
+  --line: #D9D3E2;           /* borders and dividers */
+  --accent: #6B34B4;         /* links, selected things, primary buttons */
+  --accent-soft: #EDE5F8;    /* selected backgrounds */
+  --value: #8A6410;          /* prices, the Beta pill */
+  --warn: #A5491F;
+  --warn-soft: #F6E2D8;
+  --ok: #2E6F38;
+  --ok-soft: #E1F0E3;
+
+  /* ---- Fonts ---- */
+  --font-display: "Spectral", Georgia, "Times New Roman", serif;   /* headings, deck names */
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;   /* numbers, prices, counts */
+
+  /* ---- Shape. Circles (50%) and card images (a real card's corners) are geometry, not theme. ---- */
+  --radius-xs: 3px;          /* bars, meters, chart columns, swatches */
+  --radius-sm: 6px;          /* small icon buttons, focus outlines on pictures */
+  --radius-md: 8px;          /* buttons, fields, segmented controls, small cards */
+  --radius: 10px;            /* panels, location tiles */
+  --radius-lg: 14px;         /* sheets (dialogs) */
+  --radius-pill: 999px;      /* chips, pills, tags */
+  --border-w: 1px;           /* every hairline border (focus outlines stay 2px) */
+
+  /* ---- Depth ---- */
+  --shadow-lift: 0 -1px 3px color-mix(in srgb, var(--ink) 10%, transparent);   /* stacked card tabs */
+  --shadow-sheet: 0 18px 50px rgba(0, 0, 0, 0.35);                              /* dialogs on desktop */
+  --ring-hover: 0 0 0 2px var(--accent);          /* hovering a card picture or a location tile */
+  --ring-focus: 0 0 0 3px var(--accent-soft);     /* a search field being typed in */
+  --ring-select: 0 0 0 3px var(--accent);         /* a card picture that is selected: round it, never on it */
+  --tile-edge: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);   /* location tiles */
+  --backdrop: rgba(10, 14, 16, 0.55);             /* behind an open sheet */
+
+  /* ---- Motion. Durations drop to 0 for people who ask their device to reduce motion (below). ---- */
+  --dur-fast: 0.12s;         /* hover colours, small chevrons */
+  --dur: 0.15s;              /* folding and unfolding */
+  --dur-slow: 0.3s;          /* spare, for larger movements (sheets, page changes) later */
+  --ease: ease;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---- Small marks drawn by the stylesheet (fold markers). Marks the script writes are MARK in index.html. ---- */
+  --mark-folded: "▸";
+  --mark-unfolded: "▾";
+
+  /* ---- Location colours, picked to match real boxes (the same in both themes), and the symbol drawn on them. ---- */
+  --loc-black: #26212E; --loc-white: #F1ECE2; --loc-blue: #2F6FD0; --loc-red: #B3383F; --loc-green: #3E8E4A;
+  --loc-yellow: #E0AE2B; --loc-purple: #6B34B4; --loc-orange: #D9692A; --loc-brown: #86654A; --loc-grey: #8D93A0;
+  --loc-on: #FFFFFF; --loc-on-light: #1C1724;
+
+  /* ---- Fixed: Magic's colours (mana pips and the drawn symbols), the same in every theme. ---- */
+  --mana-w: #F7F1D5; --mana-u: #A6D1EE; --mana-b: #BFB4AE; --mana-r: #F3A07C; --mana-g: #9BD2AC; --mana-c: #CFD3D6;
+  --pip-ink: #1C1724;
+  --mana-edge: rgba(0, 0, 0, 0.25);
+  --mana-edge-strong: rgba(0, 0, 0, 0.3);
+  --mana-phyrexian: rgba(0, 0, 0, 0.35);
+
+  /* ---- The card viewer is always dark, whatever the theme. ---- */
+  --viewer-paper: #0B0910; --viewer-surface: #1A1622; --viewer-sunk: #241F2D; --viewer-ink: #EAE6F2;
+  --viewer-muted: #A49DB2; --viewer-line: #3A3346; --viewer-accent: #B794F6; --viewer-accent-soft: #2B2141;
+}
+
+/* ---- Colours, dark theme: the device's setting, unless Settings › Appearance picked one. ---- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #120F18; --surface: #1A1622; --sunk: #241F2D; --ink: #EAE6F2; --muted: #A49DB2;
+    --line: #2E2839; --accent: #B794F6; --accent-soft: #2B2141; --value: #E2B652;
+    --warn: #F08A5D; --warn-soft: #3A2419; --ok: #7FCB8C; --ok-soft: #1D3022; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #120F18; --surface: #1A1622; --sunk: #241F2D; --ink: #EAE6F2; --muted: #A49DB2;
+  --line: #2E2839; --accent: #B794F6; --accent-soft: #2B2141; --value: #E2B652;
+  --warn: #F08A5D; --warn-soft: #3A2419; --ok: #7FCB8C; --ok-soft: #1D3022; color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0s; --dur: 0s; --dur-slow: 0s; }
+}
